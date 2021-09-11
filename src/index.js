@@ -2,13 +2,15 @@ import db from './db.js';
 import express from 'express'
 import cors from 'cors'
 
+
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/matricula', async (req, resp) => {
+app.get('/produto', async (req, resp) => {
     try {
-        let consul = await db.tb_matricula.findAll();
+        let consul = await db.tb_produto.findAll();
         resp.send(consul);
     }
 
@@ -17,55 +19,71 @@ app.get('/matricula', async (req, resp) => {
     }
 })
 
-app.post('/matricula', async (req, resp) => {
+app.post('/produto', async (req, resp) => {
     try{
-        let matricula = req.body;
+        let produt = req.body;
+         
+        let r = await db.tb_produto.findOne({where: {nm_produto: produt.nm_produto}});
 
-        let aluno = {
-            nm_aluno: matricula.nm_aluno,
-            nr_chamada: matricula.nr_chamada,
-            nm_curso: matricula.nm_curso,
-            nm_turma: matricula.nm_turma
-        }
+        if (r != null)
+            return resp.send({erro: "produto já existe"});
 
-        let insert = await db.tb_matricula.create(aluno);
+        let insert = await db.tb_produto.create({
+            nm_produto: produt.nm_produto,
+            ds_categoria: produt.ds_categoria,
+            vl_preco_de: produt.vl_preco_de,
+            vl_preco_por: produt.vl_preco_por,
+            vl_avaliacao: produt.vl_avaliacao,
+            ds_produto: produt.ds_produto,
+            qtd_estoque: produt.qtd_estoque,
+            img_produto: produt.img_produto,
+            bt_ativo: produt.bt_ativo,
+            dt_inclusao: produt.dt_inclusao
+        });
         resp.send(insert);
     }
     catch(e){
-        console.log(resp.send('vish fi3, faz direito o bglh').toString());
+        resp.send({erro: "coloca os valores do tipo correto"});
     }
 })
 
 
-app.put('/matricula/:id', async (req, resp) => {
+app.put('/produto/:id', async (req, resp) => {
     try {
-        let matricu = req.body;
+        let produt = req.body;
         let id = req.params.id;
 
 
         
-        let alterando = await db.tb_matricula.update({
-            nm_aluno: matricu.nm_aluno,
-            nr_chamada: matricu.nr_chamada,
-            nm_curso: matricu.nm_curso,
-            nm_turma: matricu.nm_turma
+        
+        let insert = await db.tb_produto.update({
+            nm_produto: produt.nm_produto,
+            ds_categoria: produt.ds_categoria,
+            vl_preco_de: produt.vl_preco_de,
+            vl_preco_por: produt.vl_preco_por,
+            vl_avaliacao: produt.vl_avaliacao,
+            ds_produto: produt.ds_produto,
+            qtd_estoque: produt.qtd_estoque,
+            img_produto: produt.img_produto,
+            bt_ativo: produt.bt_ativo,
+            dt_inclusao: produt.dt_inclusao
         },
         {
-            where:{ id_matricula: id}
-        })
+            where:{ id_produto: id}
+        });
 
         resp.sendStatus(200);
         
     } catch (error) {
-        console.log(resp.send('só pode numero que não seja negativo, e sem').toString());
+        resp.send({erro: "coloca os valores do tipo correto"});
     }
 })
 
 
-app.delete('/matricula/:id', async (req, resp) => {
+app.delete('/produto/:id', async (req, resp) => {
     try {
         let id = req.params.id;
-        let deletando = await db.tb_matricula.destroy({where: {id_matricula: id}})
+        let deletando = await db.tb_produto.destroy({where: {id_produto: id}})
 
         resp.sendStatus(200);
     } catch (e) {
